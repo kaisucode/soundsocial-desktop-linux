@@ -4,10 +4,17 @@ import signal
 from gi.repository import Gtk as gtk
 from gi.repository import AppIndicator3 as appindicator
 
-APPINDICATOR_ID = 'myappindicator'
+import time
+import subprocess 
+
+APPINDICATOR_ID = 'soundsocial'
+pipeline = "ffmpeg -f pulse -i default output.wav"
+# change .wav to .mp3 to generate mp3 files instead
+
+p = None
 
 def main():
-    indicator = appindicator.Indicator.new("Goodpods", "semi-starred-symbolic", appindicator.IndicatorCategory.APPLICATION_STATUS)
+    indicator = appindicator.Indicator.new("SoundSocial", "semi-starred-symbolic", appindicator.IndicatorCategory.APPLICATION_STATUS)
     indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
     indicator.set_menu(build_menu())
     gtk.main()
@@ -22,7 +29,6 @@ def build_menu():
     command_two.connect('activate', stopRecording)
     menu.append(command_two)
 
-
     item_quit = gtk.MenuItem('Quit')
     item_quit.connect('activate', quit)
     menu.append(item_quit)
@@ -31,10 +37,14 @@ def build_menu():
 
 def startRecording(_):
     print("start recording")
+    global p
+    p = subprocess.Popen(pipeline, shell=True, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
 
 def stopRecording(_):
     print("stop recording")
-    # input popup for title
+    global p
+    p.communicate(input=b'q')
+    p.terminate()
     var1 = InputWindow()
 
 def quit(source):
@@ -45,7 +55,6 @@ class InputWindow(gtk.Window):
         gtk.Window.__init__(self, title="GCT")
         self.set_size_request(400, 200)
         self.connect("destroy", lambda x: gtk.main_quit())
-
 
         vbox = gtk.Box(orientation=gtk.Orientation.VERTICAL, spacing=6)
         self.add(vbox)
@@ -61,13 +70,12 @@ class InputWindow(gtk.Window):
         button.connect("clicked", self.on_close_clicked)
         hbox.pack_start(button, True, True, 0)
 
-
         self.show_all()
 
     def on_close_clicked(self, button):
         print("Closing application")
-        print(self.entry.get_text())
-        gtk.main_quit()
+        print("clip title: " + self.entry.get_text())
+        self.hide()
 
 
 if __name__ == "__main__":
