@@ -35,9 +35,40 @@ def startRecording(_):
 def stopRecording(_):
     print("stop recording")
     # input popup for title
+    var1 = InputWindow()
 
 def quit(source):
     gtk.main_quit()
+
+class InputWindow(gtk.Window):
+    def __init__(self):
+        gtk.Window.__init__(self, title="GCT")
+        self.set_size_request(400, 200)
+        self.connect("destroy", lambda x: gtk.main_quit())
+
+
+        vbox = gtk.Box(orientation=gtk.Orientation.VERTICAL, spacing=6)
+        self.add(vbox)
+
+        self.entry = gtk.Entry()
+        self.entry.set_text("Clip Title")
+        vbox.pack_start(self.entry, True, True, 0)
+
+        hbox = gtk.Box(spacing=6)
+        vbox.pack_start(hbox, True, True, 0)
+
+        button = gtk.Button.new_with_mnemonic("Submit")
+        button.connect("clicked", self.on_close_clicked)
+        hbox.pack_start(button, True, True, 0)
+
+
+        self.show_all()
+
+    def on_close_clicked(self, button):
+        print("Closing application")
+        print(self.entry.get_text())
+        gtk.main_quit()
+
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal.SIG_DFL)
