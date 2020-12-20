@@ -1,4 +1,5 @@
 import gi
+import signal
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib
@@ -31,6 +32,7 @@ class EntryWindow(Gtk.Window):
         Gtk.main_quit()
 
 
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 win = EntryWindow()
 win.connect("destroy", Gtk.main_quit)
 win.show_all()
