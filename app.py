@@ -1,11 +1,11 @@
-
 import os
 import signal
+import time
+import subprocess 
+import requests
 from gi.repository import Gtk as gtk
 from gi.repository import AppIndicator3 as appindicator
 
-import time
-import subprocess 
 
 APPINDICATOR_ID = 'soundsocial'
 pipeline = "ffmpeg -f pulse -i default output.wav"
@@ -74,8 +74,28 @@ class InputWindow(gtk.Window):
 
     def on_close_clicked(self, button):
         print("Closing application")
-        print("clip title: " + self.entry.get_text())
+        clipTitle = self.entry.get_text()
+        print("clip title: " + clipTitle)
+        sendToServer(clipTitle)
         self.hide()
+
+def sendToServer(clipTitle): 
+    MONGO_ID = "5fde50a79f83059f957f781d"
+
+    url = "http://10.0.0.172:5000/clip"
+    data = {
+        "mongo_id": MONGO_ID,
+        "title": clipTitle, 
+        "url": "#"
+    }   
+    files = {
+        "file": open('output.wav', 'rb'),
+    }
+
+    r = requests.post(url, files=files, data=data)
+
+    print(r.status_code, r.reason)
+    print("POST request sent")
 
 
 if __name__ == "__main__":
